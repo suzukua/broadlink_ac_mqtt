@@ -1,5 +1,8 @@
-cffi==1.15.1
-cryptography==38.0.4
-paho-mqtt==1.6.1
-pycparser==2.21
-PyYAML==6.0
+# Runtime dependencies.
+# Pins relaxed to floors so the project installs on modern Python (3.9-3.13).
+# paho-mqtt 2.x is supported via a VERSION1 callback shim in AcToMqtt.py.
+broadlink>=0.19.0,<1
+paho-mqtt>=2.1,<3
+cryptography>=42
+cffi>=1.17
+PyYAML>=6.0.1
