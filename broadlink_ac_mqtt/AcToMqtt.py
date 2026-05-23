@@ -9,6 +9,7 @@ import paho.mqtt.client as mqtt
 import tempfile
 import json
 import traceback
+import socket
 
 sys.path.insert(1, os.path.join(os.path.dirname(os.path.realpath(__file__)),'classes','broadlink'))
 import broadlink_ac_mqtt.classes.broadlink.ac_db as broadlink
@@ -286,7 +287,24 @@ class AcToMqtt:
 	def connect_mqtt(self):
 	
 		##Setup client
-		self._mqtt = mqtt.Client(client_id=self.config["mqtt_client_id"], clean_session=True, userdata=None)
+		##paho-mqtt 2.0 made callback_api_version mandatory and changed the
+		##Client() signature. We opt into the legacy VERSION1 callback API so
+		##the existing on_connect/on_message/on_publish signatures keep working,
+		##while staying compatible with paho-mqtt 1.x (which has no such kwarg).
+		try:
+			self._mqtt = mqtt.Client(
+				callback_api_version=mqtt.CallbackAPIVersion.VERSION1,
+				client_id=self.config["mqtt_client_id"],
+				clean_session=True,
+				userdata=None,
+			)
+		except (AttributeError, TypeError):
+			##paho-mqtt < 2.0: no CallbackAPIVersion enum / kwarg
+			self._mqtt = mqtt.Client(
+				client_id=self.config["mqtt_client_id"],
+				clean_session=True,
+				userdata=None,
+			)
 		
 		
 		##Set last will and testament
@@ -304,8 +322,25 @@ class AcToMqtt:
 		self._mqtt.on_subscribed = self._mqtt_on_subscribe
 		
 		##Connect
-		logger.debug("Coneccting to MQTT: %s with client ID = %s" % (self.config["mqtt_host"],self.config["mqtt_client_id"]))			
-		self._mqtt.connect(self.config["mqtt_host"], port=self.config["mqtt_port"], keepalive=60, bind_address="")
+		logger.debug("Coneccting to MQTT: %s with client ID = %s" % (self.config["mqtt_host"],self.config["mqtt_client_id"]))
+		##Exponential backoff for automatic reconnects handled by paho's loop.
+		self._mqtt.reconnect_delay_set(min_delay=1, max_delay=120)
+		##Retry the initial connect so a transient DNS/broker outage at startup
+		##(e.g. "[Errno -2] Name or service not known", issue #73) does not abort
+		##the whole daemon. Back off up to ~60s, then give up and re-raise.
+		_attempt = 0
+		while True:
+			try:
+				self._mqtt.connect(self.config["mqtt_host"], port=self.config["mqtt_port"], keepalive=60, bind_address="")
+				break
+			except (socket.gaierror, socket.timeout, ConnectionRefusedError, OSError) as e:
+				_attempt += 1
+				_wait = min(2 ** _attempt, 60)
+				logger.warning("MQTT connect to %s:%s failed (%s); retry %s in %ss" % (self.config["mqtt_host"], self.config["mqtt_port"], e, _attempt, _wait))
+				if _attempt >= 8:
+					logger.error("MQTT connect giving up after %s attempts" % _attempt)
+					raise
+				time.sleep(_wait)
 		
 		
 		##Start
