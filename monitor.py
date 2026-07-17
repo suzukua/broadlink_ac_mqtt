@@ -256,15 +256,8 @@ def start():
 			sys.exit()
 			
 	else:
-		if os.path.exists(data_dir+'/settings/config.yml'):
-			config_file_path = data_dir+'/settings/config.yml'
-		# elif  os.path.exists(data_dir+'\\settings\\config.yml'):
-		# 	config_file_path = data_dir+'\\settings\\config.yml'
-		else:
-			# config_file_path = data_dir+'/config.yml'
-			config_file_path = data_dir+'\\settings\config.yml'
-		
-	
+		config_file_path = os.path.join(data_dir, "settings", "config.yml")
+
 	##LogFile
 	if args.logfile:			
 		log_file_path = args.logfile			 
