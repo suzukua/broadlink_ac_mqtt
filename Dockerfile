@@ -2,6 +2,7 @@ FROM python:3.12-alpine
 
 COPY broadlink_ac_mqtt /app/broadlink_ac_mqtt
 COPY log /app/log
+COPY settings /app/settings
 COPY monitor.py /app/monitor.py
 COPY requirements.txt /app/requirements.txt
 
