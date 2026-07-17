@@ -211,6 +211,33 @@ class AcToMqtt:
 			
 		return devices_array
 
+	def make_switch_array_from_devices(self, devices):
+		result = {}
+		for key, device in devices.items():
+			name = ""
+			if not device.name :
+				name = device.status["macaddress"]
+			else:
+				name = device.name.encode('ascii','ignore')
+			mac = device.status["macaddress"]
+			result[mac+"_sleep"] = {
+				"name": str(name.decode("utf-8"))+" 睡眠",
+				"unique_id": mac+"_sleep",
+				"command_topic":
+					self.config["mqtt_topic_prefix"]
+					+ mac
+					+ "/sleep/set",
+				"state_topic":
+					self.config["mqtt_topic_prefix"]
+					+ mac
+					+ "/sleep/value",
+				"payload_on": "ON",
+				"payload_off": "OFF",
+				"state_on": "ON",
+				"state_off": "OFF"
+			}
+		return result
+
 	def publish_mqtt_auto_discovery(self,devices):
 		if 	devices == [] or devices == None:
 			print ("No devices defined")
@@ -237,7 +264,21 @@ class AcToMqtt:
 			device = devices_array[key]			
 			topic = self.config["mqtt_auto_discovery_topic"]+"/climate/"+key+"/config"
 			##Publish						
-			self._publish(topic,json.dumps(device), retain = retain)			
+			self._publish(topic,json.dumps(device), retain = retain)
+
+		switch_array = self.make_switch_array_from_devices(devices)
+		for key in switch_array:
+			topic = (
+					self.config["mqtt_auto_discovery_topic"]
+					+ "/switch/"
+					+ key
+					+ "/config"
+			)
+			self._publish(
+				topic,
+				json.dumps(switch_array[key]),
+				retain=retain
+			)
 				
 	def publish_mqtt_info(self,status,force_update = False) :	
 		##If auto discovery is used, then always update
@@ -577,6 +618,18 @@ class AcToMqtt:
 					logger.debug("Device not on list of devices %s, type:%s" % (address,type(address)))
 					return
 			except Exception as e:	
+				logger.critical(e)
+				return
+		elif function == "sleep":
+			try:
+				if self.device_objects.get(address):
+					status = self.device_objects[address].set_sleep(value)
+					if status:
+						self.publish_mqtt_info(status)
+				else:
+					logger.debug("Device not on list of devices %s, type:%s" % (address,type(address)))
+					return
+			except Exception as e:
 				logger.critical(e)
 				return
 		else:
