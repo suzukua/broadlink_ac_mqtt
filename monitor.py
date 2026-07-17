@@ -103,7 +103,7 @@ def stop_if_already_running():
 	if(check_if_running()):		
 		sys.exit()
 
-def init_logging(level,log_file_path):
+def init_logging(level):
 		
 		# Init logging
 		logging.basicConfig(
