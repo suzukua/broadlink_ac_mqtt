@@ -279,7 +279,7 @@ class AcToMqtt:
 				json.dumps(switch_array[key]),
 				retain=retain
 			)
-				
+
 	def publish_mqtt_info(self,status,force_update = False) :	
 		##If auto discovery is used, then always update
 		if not force_update:
