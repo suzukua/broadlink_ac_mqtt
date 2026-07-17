@@ -95,7 +95,7 @@ def read_config(config_file_path):
 		config["devices"] = config_file['devices']
 	else:
 		config["devices"] = None	
-	
+	config["log_level"] = config_file["service"]['log_level'] or "INFO"
 	return config
 				
 
@@ -107,7 +107,6 @@ def init_logging(level,log_file_path):
 		
 		# Init logging
 		logging.basicConfig(
-			filename=log_file_path,
 			level=level,
 			format="%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
 		 
@@ -259,13 +258,13 @@ def start():
 		config_file_path = os.path.join(data_dir, "settings", "config.yml")
 
 	##LogFile
-	if args.logfile:			
-		log_file_path = args.logfile			 
-	else:			
-		log_file_path = os.path.dirname(os.path.realpath(__file__))+'/log/out.log'
+	# if args.logfile:
+	# 	log_file_path = args.logfile
+	# else:
+	# 	log_file_path = os.path.dirname(os.path.realpath(__file__))+'/log/out.log'
 		
 	log_level = logging.DEBUG if args.debug else logging.INFO
-	init_logging(log_level,log_file_path)
+	init_logging(log_level)
 	
 	logger.debug("%s v%s is starting up" % (__file__, softwareversion))
 	logLevel = {0: 'NOTSET', 10: 'DEBUG', 20: 'INFO', 30: 'WARNING', 40: 'ERROR'}
@@ -274,9 +273,10 @@ def start():
 	
 	##Apply the config, then if arguments, override the config values with args
 	config = read_config(config_file_path)
+	level_str = config["log_level"].upper()
+	log_level = getattr(logging, level_str, logging.INFO)
+	logging.getLogger().setLevel(log_level)
 
-	
-	
 	##Print verions
 	if args.version:
 		print ("Monitor Version: %s, Class version:%s" % (softwareversion,ac_db_version.version))
