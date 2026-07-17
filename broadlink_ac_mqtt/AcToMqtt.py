@@ -205,38 +205,44 @@ class AcToMqtt:
 				,"pl_avail":"online"
 				,"pl_not_avail":"offline"
 				,"availability_topic": self.config["mqtt_topic_prefix"]  +"LWT"
+				,"preset_mode_command_topic": self.config["mqtt_topic_prefix"] + device.status["macaddress"] + "/preset/set"
+				,"preset_mode_state_topic": self.config["mqtt_topic_prefix"] + device.status["macaddress"] + "/preset/value"
+				,"preset_modes":[
+					"normal",
+					"sleep"
+				],
 			}
 			
 			devices_array[device.status["macaddress"]] = device_array
 			
 		return devices_array
 
-	def make_switch_array_from_devices(self, devices):
-		result = {}
-		for key, device in devices.items():
-			name = ""
-			if not device.name :
-				name = device.status["macaddress"]
-			else:
-				name = device.name.encode('ascii','ignore')
-			mac = device.status["macaddress"]
-			result[mac+"_sleep"] = {
-				"name": str(name.decode("utf-8"))+" 睡眠",
-				"unique_id": mac+"_sleep",
-				"command_topic":
-					self.config["mqtt_topic_prefix"]
-					+ mac
-					+ "/sleep/set",
-				"state_topic":
-					self.config["mqtt_topic_prefix"]
-					+ mac
-					+ "/sleep/value",
-				"payload_on": "ON",
-				"payload_off": "OFF",
-				"state_on": "ON",
-				"state_off": "OFF"
-			}
-		return result
+	# def make_switch_array_from_devices(self, devices):
+	# 	result = {}
+	# 	for key, device in devices.items():
+	# 		name = ""
+	# 		if not device.name :
+	# 			name = device.status["macaddress"]
+	# 		else:
+	# 			name = device.name.encode('ascii','ignore')
+	# 		mac = device.status["macaddress"]
+	# 		result[mac+"_sleep"] = {
+	# 			"name": str(name.decode("utf-8"))+" 睡眠",
+	# 			"unique_id": mac+"_sleep",
+	# 			"command_topic":
+	# 				self.config["mqtt_topic_prefix"]
+	# 				+ mac
+	# 				+ "/sleep/set",
+	# 			"state_topic":
+	# 				self.config["mqtt_topic_prefix"]
+	# 				+ mac
+	# 				+ "/sleep/value",
+	# 			"payload_on": "ON",
+	# 			"payload_off": "OFF",
+	# 			"state_on": "ON",
+	# 			"state_off": "OFF"
+	# 		}
+	# 	return result
 
 	def publish_mqtt_auto_discovery(self,devices):
 		if 	devices == [] or devices == None:
@@ -266,19 +272,19 @@ class AcToMqtt:
 			##Publish						
 			self._publish(topic,json.dumps(device), retain = retain)
 
-		switch_array = self.make_switch_array_from_devices(devices)
-		for key in switch_array:
-			topic = (
-					self.config["mqtt_auto_discovery_topic"]
-					+ "/switch/"
-					+ key
-					+ "/config"
-			)
-			self._publish(
-				topic,
-				json.dumps(switch_array[key]),
-				retain=retain
-			)
+		# switch_array = self.make_switch_array_from_devices(devices)
+		# for key in switch_array:
+		# 	topic = (
+		# 			self.config["mqtt_auto_discovery_topic"]
+		# 			+ "/switch/"
+		# 			+ key
+		# 			+ "/config"
+		# 	)
+		# 	self._publish(
+		# 		topic,
+		# 		json.dumps(switch_array[key]),
+		# 		retain=retain
+		# 	)
 
 	def publish_mqtt_info(self,status,force_update = False) :	
 		##If auto discovery is used, then always update
@@ -608,18 +614,33 @@ class AcToMqtt:
 			except Exception as e:	
 				logger.critical(e)
 				return
-		elif function ==  "sleep":	
+		elif function == "preset":
 			try:
-				if self.device_objects.get(address):					
-					status = self.device_objects[address].set_sleep(value)					
-					if status :
+				if self.device_objects.get(address):
+					if value == "sleep":
+						status = self.device_objects[address].set_sleep("ON")
+					elif value == "normal":
+						status = self.device_objects[address].set_sleep("OFF")
+					else:
+						logger.debug("Unknown preset %s", value)
+						return
+					if status:
 						self.publish_mqtt_info(status)
-				else:
-					logger.debug("Device not on list of devices %s, type:%s" % (address,type(address)))
-					return
-			except Exception as e:	
+			except Exception as e:
 				logger.critical(e)
 				return
+		# elif function ==  "sleep":
+		# 	try:
+		# 		if self.device_objects.get(address):
+		# 			status = self.device_objects[address].set_sleep(value)
+		# 			if status :
+		# 				self.publish_mqtt_info(status)
+		# 		else:
+		# 			logger.debug("Device not on list of devices %s, type:%s" % (address,type(address)))
+		# 			return
+		# 	except Exception as e:
+		# 		logger.critical(e)
+		# 		return
 		elif function == "sleep":
 			try:
 				if self.device_objects.get(address):

@@ -788,7 +788,7 @@ class ac_db(device):
 			self.status['mute'] = response_payload[14] >> 7& 0b00000001
 			self.status['turbo'] =response_payload[14] >> 6& 0b00000001
 			self.status['clean'] = response_payload[18] >> 2& 0b00000001
-			
+			self.status['eco'] = response_payload[18] >> 4 & 0b00000001
 
 
 			self.status['lastupdate'] = time.time()
@@ -1086,7 +1086,7 @@ class ac_db_debug(device):
 			self.status['mute'] = response_payload[14] >> 7& 0b00000001
 			self.status['turbo'] =response_payload[14] >> 6& 0b00000001
 			self.status['clean'] = response_payload[18] >> 2& 0b00000001
-			
+			self.status['eco'] = response_payload[18] >> 4 & 0b00000001
 
 
 			self.status['lastupdate'] = time.time()
