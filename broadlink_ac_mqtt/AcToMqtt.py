@@ -231,25 +231,25 @@ class AcToMqtt:
 				"state_off": "OFF"
 			}
 			result[mac+"_display"] = {
-            				"name": str(name.decode("utf-8"))+" display",
-            				"unique_id": mac+"_display",
-            				"command_topic": self.config["mqtt_topic_prefix"] + mac + "/display/set",
-            				"state_topic": self.config["mqtt_topic_prefix"] + mac + "/display/value",
-            				"payload_on": "ON",
-            				"payload_off": "OFF",
-            				"state_on": "ON",
-            				"state_off": "OFF"
-            			}
+                "name": str(name.decode("utf-8"))+" display",
+                "unique_id": mac+"_display",
+                "command_topic": self.config["mqtt_topic_prefix"] + mac + "/display/set",
+                "state_topic": self.config["mqtt_topic_prefix"] + mac + "/display/value",
+                "payload_on": "ON",
+                "payload_off": "OFF",
+                "state_on": "ON",
+                "state_off": "OFF"
+            }
             result[mac+"_eco"] = {
-                        				"name": str(name.decode("utf-8"))+" eco",
-                        				"unique_id": mac+"_eco",
-                        				"command_topic": self.config["mqtt_topic_prefix"] + mac + "/eco/set",
-                        				"state_topic": self.config["mqtt_topic_prefix"] + mac + "/eco/value",
-                        				"payload_on": "ON",
-                        				"payload_off": "OFF",
-                        				"state_on": "ON",
-                        				"state_off": "OFF"
-                        			}
+                "name": str(name.decode("utf-8"))+" eco",
+                "unique_id": mac+"_eco",
+                "command_topic": self.config["mqtt_topic_prefix"] + mac + "/eco/set",
+                "state_topic": self.config["mqtt_topic_prefix"] + mac + "/eco/value",
+                "payload_on": "ON",
+                "payload_off": "OFF",
+                "state_on": "ON",
+                "state_off": "OFF"
+            }
 		return result
 
 	def publish_mqtt_auto_discovery(self,devices):
