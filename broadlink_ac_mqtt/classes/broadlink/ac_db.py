@@ -607,18 +607,18 @@ class ac_db(device):
 		else:
 			self.logger.debug("Not found display value %s" , str(value))
 			return False
-    def set_eco(self,value):
-        ##Make sure latest info as cannot just update one things, have set all
-        self.get_ac_states()
+	def set_eco(self,value):
+		##Make sure latest info as cannot just update one things, have set all
+		self.get_ac_states()
 
-        mode = self.STATIC.ONOFF.__dict__.get(value)
-        if mode != None:
-            self.status['eco'] = mode
-            self.set_ac_status()
-            return self.make_nice_status(self.status)
-        else:
-            self.logger.debug("Not found display value %s" , str(value))
-            return False
+		mode = self.STATIC.ONOFF.__dict__.get(value)
+		if mode != None:
+			self.status['eco'] = mode
+			self.set_ac_status()
+			return self.make_nice_status(self.status)
+		else:
+			self.logger.debug("Not found display value %s" , str(value))
+			return False
 
 	def set_homekit_mode(self,status):
 		if type(status) is not str:
