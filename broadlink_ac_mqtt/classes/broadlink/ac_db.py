@@ -953,9 +953,18 @@ class ac_db(device):
 		payload[15] = 0b00000000 | self.status['mode'] << 5 | self.status['sleep'] << 2
 		payload[16] = 0b00000000
 		payload[17] = 0x00
-		payload[18] = 0b00000000 | self.status['power']<<5 | self.status['eco'] << 4 | self.status['health'] << 1 | self.status['clean'] << 2
+
+		power_val = 1 if self.status['power'] in [1, 'ON', True] else 0
+		eco_val = 1 if self.status['eco'] in [1, 'ON', True] else 0
+		health_val = 1 if self.status['health'] in [1, 'ON', True] else 0
+		clean_val = 1 if self.status['clean'] in [1, 'ON', True] else 0
+		payload[18] = 0b00000000 | power_val << 5 | eco_val << 4 | health_val << 1 | clean_val << 2
+		# payload[18] = 0b00000000 | self.status['power']<<5 | self.status['eco'] << 4 | self.status['health'] << 1 | self.status['clean'] << 2
+
 		payload[19] = 0x00
-		payload[20] = 0b00000000 |  self.status['display'] <<4  | self.status['mildew'] << 3
+		display_val = 1 if self.status['display'] in [1, 'ON', True] else 0
+		mildew_val = 1 if self.status['mildew'] in [1, 'ON', True] else 0
+		payload[20] = 0b00000000 |  display_val <<4  | mildew_val << 3
 		payload[21] = 0b00000000
 		payload[22] = 0b00000000
 
