@@ -587,7 +587,7 @@ class ac_db(device):
 		self.get_ac_states()
 
 		mode = self.STATIC.ONOFF.__dict__.get(value)
-		if mode != None:
+		if mode is not None:
 			self.status['health'] = mode
 			self.set_ac_status()
 			return self.make_nice_status(self.status)
@@ -600,7 +600,7 @@ class ac_db(device):
 		self.get_ac_states()
 
 		mode = self.STATIC.ONOFF.__dict__.get(value)
-		if mode != None:
+		if mode is not None:
 			self.status['sleep'] = mode
 			self.set_ac_status()
 			return self.make_nice_status(self.status)
@@ -612,7 +612,7 @@ class ac_db(device):
 		self.get_ac_states()
 
 		mode = self.STATIC.ONOFF.__dict__.get(value)
-		if mode != None:
+		if mode is not None:
 			self.status['eco'] = mode
 			self.set_ac_status()
 			return self.make_nice_status(self.status)
