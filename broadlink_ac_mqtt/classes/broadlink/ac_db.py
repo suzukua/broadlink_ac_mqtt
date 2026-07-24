@@ -983,7 +983,10 @@ class ac_db(device):
 
 
 
-		self.logger.debug ("Packet:"+ ''.join(format(x, '02x') for x in request_payload))
+		self.logger.debug(
+			"Send Payload: " +
+			" ".join(f"[{i}]={b:02x}" for i, b in enumerate(payload))
+		)
 
 		response = self.send_packet(0x6a, request_payload)
 		self.logger.debug ("Resposnse:" + ''.join(format(x, '02x') for x in response))
