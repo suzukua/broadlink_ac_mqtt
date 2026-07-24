@@ -1089,7 +1089,7 @@ class ac_db_debug(device):
 
 			response_payload  = response_payload[2:]  ##Drop leading stuff as dont need
 
-			self.logger.debug ("Raw AC Status: " + ' '.join(format(x, '02x') for x in response_payload )  )
+			self.logger.debug("Raw AC Status: " + ' '.join(f"[{i}]={x:02x}" for i, x in enumerate(response_payload)))
 			#self.logger.debug ("" + ' '.join(format(x, '08b') for x in response_payload[9:] )  )
 
 			#AuxInfo [tem=18, panMode=7, panType=1, nowTimeHour=5, setTem05=0, antoSenseYards=0, nowTimeMin=51, windSpeed=5, timerHour=0, voice=0, timerMin=0, mode=4, hasDew=0, hasSenseYards=0, hasSleep=0, isFollow=0, roomTem=0, roomHum=0, timeEnable=0, open=1, hasElectHeat=0, hasEco=0, hasClean=0, hasHealth=0, hasAir=0, weedSet=0, electronicLock=0, showDisplyBoard=1, mouldProof=0, controlMode=0, sleepMode=0]
