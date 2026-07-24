@@ -222,7 +222,7 @@ class AcToMqtt:
 			mac = device.status["macaddress"]
 			features = [
 				("sleep", "sleep"),
-				("eco", "eco"),
+				# ("eco", "eco"),
 				("display", "display"),
 			]
 			for suffix, topic in features:
