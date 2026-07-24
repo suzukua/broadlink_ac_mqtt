@@ -6,7 +6,6 @@ COPY settings /app/settings
 COPY monitor.py /app/monitor.py
 COPY requirements.txt /app/requirements.txt
 
-RUN apk add --no-cache libffi-dev procps \
-    && pip3 install --no-cache-dir -r /app/requirements.txt
+RUN pip3 install --no-cache-dir -r /app/requirements.txt
 
 CMD ["python", "/app/monitor.py", "-c", "/config/config.yml"]
